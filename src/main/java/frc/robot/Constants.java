@@ -20,6 +20,11 @@ public final class Constants {
     public static final double WHEEL_DIAMETER = Units.inchesToMeters(6);
     public static final double WHEEL_CIRCUM = 2*Math.PI*WHEEL_DIAMETER;
     public static final double TRACK_WIDTH = Units.inchesToMeters(21.75);
+
+    //Gear
+    public static final double GEAR_RATIO = 8.46; // 8.46:1 gearing reduction
+    public static final double MOTION_OF_INERTIA = 7.5; //kg m^2
+    public static final double MASS_OF_ROBOT = 60; //kg
   }
 
   public static class DriveConstants {

@@ -7,18 +7,25 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
+import edu.wpi.first.math.VecBuilder;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.simulation.ADXRS450_GyroSim;
+import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
+import edu.wpi.first.wpilibj.simulation.EncoderSim;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.Constants.DriveConstants;
+import frc.robot.Constants.RobotConstants;
 
 public class Drivetrain extends SubsystemBase {
   /** Creates a new Drivetrain. */
@@ -31,6 +38,9 @@ public class Drivetrain extends SubsystemBase {
   //Encoders
   private Encoder leftEncoder;
   private Encoder rightEncoder;
+  //Sims
+  private EncoderSim leftEncoderSim;
+  private EncoderSim rightEncoderSim;
 
   private int direction = 1;
   
@@ -39,9 +49,12 @@ public class Drivetrain extends SubsystemBase {
   private DifferentialDriveKinematics kinematics;
 
   //Gyro
-  public ADXRS450_Gyro gyro = new ADXRS450_Gyro(); 
+  public ADXRS450_Gyro gyro = new ADXRS450_Gyro();
+  //Sims
+  private ADXRS450_GyroSim gyroSim = new ADXRS450_GyroSim(gyro);
   
   DifferentialDrive diffDrive;
+  DifferentialDrivetrainSim drivetrainSim;
 
   //Create a chooser for selecting speed
   SendableChooser<Double> driveScaleChooser = new SendableChooser<Double>();
@@ -71,22 +84,36 @@ public class Drivetrain extends SubsystemBase {
     leftFollow.setNeutralMode(NeutralMode.Brake);
 
     //motor inversion
-    rightLead.setInverted(Constants.DriveConstants.RIGHT_DRIVE_INVERT);
-    rightFollow.setInverted(Constants.DriveConstants.RIGHT_DRIVE_INVERT);
-    leftLead.setInverted(Constants.DriveConstants.LEFT_DRIVE_INVERT);
-    leftFollow.setInverted(Constants.DriveConstants.LEFT_DRIVE_INVERT);
+    rightLead.setInverted(DriveConstants.RIGHT_DRIVE_INVERT);
+    rightFollow.setInverted(DriveConstants.RIGHT_DRIVE_INVERT);
+    leftLead.setInverted(DriveConstants.LEFT_DRIVE_INVERT);
+    leftFollow.setInverted(DriveConstants.LEFT_DRIVE_INVERT);
 
     //group the motors
     rightFollow.follow(rightLead);
     leftFollow.follow(leftLead);
 
+    //Diferential Drive
     diffDrive = new DifferentialDrive(rightLead, leftLead);
+    //Sim
+    drivetrainSim = new DifferentialDrivetrainSim(
+      DCMotor.getCIM(2),
+      RobotConstants.GEAR_RATIO,
+      RobotConstants.MOTION_OF_INERTIA,
+      RobotConstants.MASS_OF_ROBOT,
+      RobotConstants.WHEEL_DIAMETER/2,
+      RobotConstants.TRACK_WIDTH,
+      VecBuilder.fill(0.001, 0.001, 0.001, 0.1, 0.1, 0.005, 0.005)
+    );
 
     //initialize the drivetrain encoders
     leftEncoder = new Encoder(Constants.SensorConstants.LEFT_ENCODER_ID, Constants.SensorConstants.LEFT_ENCODER_BUSID, Constants.DriveConstants.LEFT_DRIVE_INVERT);
     rightEncoder = new Encoder(Constants.SensorConstants.RIGHT_ENCODER_ID, Constants.SensorConstants.RIGHT_ENCODER_BUSID, Constants.DriveConstants.RIGHT_DRIVE_INVERT);
     leftEncoder.setDistancePerPulse(Constants.RobotConstants.WHEEL_CIRCUM/Constants.SensorConstants.ENCODER_COUNTS_PER_ROT);
     resetEncoders();
+    //Sims
+    leftEncoderSim = new EncoderSim(leftEncoder);
+    rightEncoderSim = new EncoderSim(rightEncoder);
 
     //Odometry and Kinematics
     odometry = new DifferentialDriveOdometry(getRotation2D(), getLeftDistance(), getRightDistance());
@@ -151,6 +178,10 @@ public class Drivetrain extends SubsystemBase {
 
   public void toggleDirection(){
     this.direction *= -1;
+  }
+
+  public void simulationPeriodic(){
+    drivetrainSim.setInputs(direction, CURRENT_DRIVE_SCALE);
   }
 
   @Override
