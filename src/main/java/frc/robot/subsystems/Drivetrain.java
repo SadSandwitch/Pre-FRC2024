@@ -11,12 +11,10 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
-import edu.wpi.first.networktables.NetworkTableInstance;
-import edu.wpi.first.networktables.StructArrayPublisher;
-import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
@@ -49,9 +47,8 @@ public class Drivetrain extends SubsystemBase {
   SendableChooser<Double> driveScaleChooser = new SendableChooser<Double>();
   public double CURRENT_DRIVE_SCALE;
 
-  //Advantage Scope
-  StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
-          .getStructTopic("Pose", Pose2d.struct).publish();
+  //dash
+  public final Field2d field2d;
 
   public Drivetrain() {
 
@@ -102,6 +99,10 @@ public class Drivetrain extends SubsystemBase {
     driveScaleChooser.addOption("25%", 0.25);
 
     SmartDashboard.putData("Drive Speed", driveScaleChooser);
+
+    //dash
+    field2d = new Field2d();
+    SmartDashboard.putData(field2d);
   }
 
   //tank drive
@@ -163,9 +164,9 @@ public class Drivetrain extends SubsystemBase {
     SmartDashboard.putNumber("YPos", odometry.getPoseMeters().getY());
     SmartDashboard.putNumber("Heading", getRotation2D().getDegrees());
 
-    publisher.set(getPose());
-
     SmartDashboard.putNumber("Angle", gyro.getAngle());
+
+    field2d.setRobotPose(odometry.getPoseMeters());
 
     CURRENT_DRIVE_SCALE = driveScaleChooser.getSelected();
   }
