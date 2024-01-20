@@ -1,0 +1,12 @@
+{
+  "NTProvider": {
+    "types": {
+      "/FMSInfo": "FMSInfo",
+      "/SmartDashboard/Drive Mode": "String Chooser",
+      "/SmartDashboard/Drive Speed": "String Chooser"
+    }
+  },
+  "NetworkTables Info": {
+    "visible": true
+  }
+}

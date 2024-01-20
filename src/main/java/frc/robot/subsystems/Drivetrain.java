@@ -145,6 +145,15 @@ public class Drivetrain extends SubsystemBase {
   public void periodic() {
     updateOdometry();
 
+    SmartDashboard.putNumber("Left Drive Encoder", leftEncoder.getRaw());
+    SmartDashboard.putNumber("Right Drive Encoder", rightEncoder.getRaw());
+
+    SmartDashboard.putNumber("XPos", odometry.getPoseMeters().getX());
+    SmartDashboard.putNumber("YPos", odometry.getPoseMeters().getY());
+    SmartDashboard.putNumber("Heading", getRotation2D().getDegrees());
+
+    SmartDashboard.putNumber("Angle", gyro.getAngle());
+
     CURRENT_DRIVE_SCALE = driveScaleChooser.getSelected();
   }
 }

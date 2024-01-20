@@ -37,7 +37,7 @@ public class DriveCommand extends Command {
   public void execute() {
     if(drivChooser.getSelected()){ //tank
       double moveSpeedY = -(xbox.getLeftY()*drivetrain.CURRENT_DRIVE_SCALE);
-      double moveSpeedX = -(xbox.getRightX()*drivetrain.CURRENT_DRIVE_SCALE);
+      double moveSpeedX = -(xbox.getRightY()*drivetrain.CURRENT_DRIVE_SCALE);
       drivetrain.tankDrive(moveSpeedY, moveSpeedX);
     }else if(!(drivChooser.getSelected())){
       double speed = -(xbox.getLeftY()*drivetrain.CURRENT_DRIVE_SCALE);
