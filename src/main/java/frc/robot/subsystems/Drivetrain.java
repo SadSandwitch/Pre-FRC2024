@@ -7,9 +7,13 @@ package frc.robot.subsystems;
 import com.ctre.phoenix.motorcontrol.NeutralMode;
 import com.ctre.phoenix.motorcontrol.can.WPI_VictorSPX;
 
+import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.DifferentialDriveKinematics;
 import edu.wpi.first.math.kinematics.DifferentialDriveOdometry;
+import edu.wpi.first.networktables.NetworkTableInstance;
+import edu.wpi.first.networktables.StructArrayPublisher;
+import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
@@ -44,6 +48,10 @@ public class Drivetrain extends SubsystemBase {
   //Create a chooser for selecting speed
   SendableChooser<Double> driveScaleChooser = new SendableChooser<Double>();
   public double CURRENT_DRIVE_SCALE;
+
+  //Advantage Scope
+  StructPublisher<Pose2d> publisher = NetworkTableInstance.getDefault()
+          .getStructTopic("Pose", Pose2d.struct).publish();
 
   public Drivetrain() {
 
@@ -136,6 +144,9 @@ public class Drivetrain extends SubsystemBase {
   public void updateOdometry(){
     odometry.update(getRotation2D(), getLeftDistance(), getRightDistance());
   }
+  public Pose2d getPose(){
+    return odometry.getPoseMeters();
+  }
 
   public void toggleDirection(){
     this.direction *= -1;
@@ -151,6 +162,8 @@ public class Drivetrain extends SubsystemBase {
     SmartDashboard.putNumber("XPos", odometry.getPoseMeters().getX());
     SmartDashboard.putNumber("YPos", odometry.getPoseMeters().getY());
     SmartDashboard.putNumber("Heading", getRotation2D().getDegrees());
+
+    publisher.set(getPose());
 
     SmartDashboard.putNumber("Angle", gyro.getAngle());
 
