@@ -1,0 +1,49 @@
+import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.command.Command;
+import edu.wpi.first.wpilibj.command.Scheduler;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+//put input timer so auto CAN ACTUALLY EXIST
+public class Robot extends TimedRobot {
+    private Command autonomousCommand;
+
+    @Override
+    public void robotInit() {
+        // Initialize your robot components and commands here
+        // Example:
+        // autonomousCommand = new MyAutonomousCommand();
+    }
+
+    @Override
+    public void autonomousInit() {
+        // Start the selected autonomous command
+        if (autonomousCommand != null) {
+            autonomousCommand.start();
+        }
+    }
+
+    @Override
+    public void autonomousPeriodic() {
+        // Run autonomous periodic tasks here
+        Scheduler.getInstance().run();
+        updateDashboard();
+    }
+
+    @Override
+    public void teleopPeriodic() {
+        // Run teleop (driver-controlled) code here
+        Scheduler.getInstance().run();
+        updateDashboard();
+    }
+
+    @Override
+    public void testPeriodic() {
+        // Run test mode code here
+    }
+
+    private void updateDashboard() {
+        // Update SmartDashboard values for debugging and monitoring
+        SmartDashboard.putNumber("Robot Time", Timer.getFPGATimestamp());
+        // Add more SmartDashboard values as needed
+    }
+}
